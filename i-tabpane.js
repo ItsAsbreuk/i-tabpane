@@ -21,7 +21,7 @@ module.exports = function (window) {
     require('i-item')(window);
     require('i-head')(window);
 
-    window.document.createTag('i-tabpane');
+    window.document.createItag('i-tabpane');
 
     // window.HTMLElement.prototype.subClass('i-tabpane', function() {
         // console.warn('constructor itabpane');
