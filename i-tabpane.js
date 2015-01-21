@@ -14,17 +14,19 @@ var TRANS_TIME_SHOW = 0.3,
 module.exports = function (window) {
 
     "use strict";
-    var itagsCore = require('itags.core')(window),
+    require('itags.core')(window);
+
+    var itagName = 'i-tabpane',
+        Event;
+
+    if (!window.ITAGS[itagName]) {
         Event = require('event-dom')(window);
+        // require('focusmanager')(window);
+        require('i-item')(window);
+        require('i-head')(window);
 
-    // require('focusmanager')(window);
-    require('i-item')(window);
-    require('i-head')(window);
+        window.document.createItag('i-tabpane');
+    }
 
-    window.document.createItag('i-tabpane');
-
-    // window.HTMLElement.prototype.subClass('i-tabpane', function() {
-        // console.warn('constructor itabpane');
-    // });
 
 };
