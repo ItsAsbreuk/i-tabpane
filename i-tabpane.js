@@ -14,7 +14,7 @@ module.exports = function (window) {
 
     var itagName = 'i-tabpane',
         DOCUMENT = window.document,
-        Event;
+        Event, Itag;
 
     if (!window.ITAGS[itagName]) {
         Event = require('event-dom')(window);
@@ -22,15 +22,37 @@ module.exports = function (window) {
         require('i-item')(window);
         require('i-head')(window);
 
-        Event.after('xfocus', function(e) {
-            var element = e.target,
+        Event.before(itagName+':manualfocus', function(e) {
+            // the i-select itself is unfocussable, but its button is
+            // we need to patch `manualfocus`,
+            // which is emitted on node.focus()
+            // a focus by userinteraction will always appear on the button itself
+            // so we don't bother that
+            var element = e.target;
+            e.preventDefault();
+            // cautious:  all child-elements that have `manualfocus` event are
+            // subscribed as well: we NEED to inspect e.target and only continue
+            // if e.target===i-select
+            e.preventDefault();
+            element.itagReady().then(
+                function() {
+                    var ul = element.getElement('>ul');
+                    ul && ul.focus();
+                }
+            );
+        });
+
+        Event.after('focus', function(e) {
+            var node = e.target,
+                ul = node.getParent(),
+                element = ul.getParent(),
                 model = element.model,
                 liNodes;
-            liNodes = element.getParent().getAll('li');
-            model.pane = liNodes.indexOf(element) + 1;
+            liNodes = ul.getAll('li');
+            model.pane = liNodes.indexOf(node) + 1;
         }, 'i-tabpane > ul li');
 
-        DOCUMENT.createItag(itagName, {
+        Itag = DOCUMENT.createItag(itagName, {
             /*
              * Internal hash containing all DOM-events that are listened for (at `document`).
              *
@@ -59,6 +81,8 @@ module.exports = function (window) {
             init: function() {
                 var element = this,
                     itemNodes = element.getAll('>i-item'),
+                    model = element.model,
+                    pane = model.pane,
                     panes = [],
                     tabs = [],
                     content;
@@ -69,7 +93,7 @@ module.exports = function (window) {
                         header.remove(true);
                     }
                     else {
-                        tabs[i] = '&laquo;';
+                        tabs[i] = '&nbsp;';
                     }
                     panes[panes.length] = node.getHTML();
                 });
@@ -78,9 +102,10 @@ module.exports = function (window) {
                 element.model.tabs = tabs;
 
                 // store its current value, so that valueChange-event can fire:
-                element.setData('i-select-pane', element.model.pane);
+                element.setData('i-select-pane', pane);
 
-                content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div></div>';
+                // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
+                content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
                 // set the content:
                 element.setHTML(content);
             },
@@ -113,24 +138,31 @@ module.exports = function (window) {
                     tabs = model.tabs,
                     len = tabs.length,
                     navContainer = element.getElement('>ul'),
-                    container = element.getElement('>div'),
+                    container = element.getElement('div.container'),
                     content = '',
                     i, tabItem, index;
 
                 index = pane - 1;
                 for (i=0; i<len; i++) {
                     tabItem = tabs[i];
-                    content += '<li class="pure-button'+((i===index) ? ' pure-button-active' : '')+'">'+tabItem+'</li>';
+                    if (i===index) {
+                        content += '<li class="pure-button pure-button-active" fm-defaultitem="true">'+tabItem+'</li>';
+                    }
+                    else {
+                        content += '<li class="pure-button">'+tabItem+'</li>';
+                    }
                 }
 
                 // set the tabs:
                 navContainer.setHTML(content);
 
                 // set the content:
+console.info('SETTING '+panes[index]);
                 container.setHTML(panes[index]);
             }
         });
 
+        Itag.setItagDirectEventResponse('focus');
 
     }
 

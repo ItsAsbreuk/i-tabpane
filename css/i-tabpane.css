@@ -30,11 +30,19 @@ i-tabpane:not(.itag-rendered) * {
 }
 /* ================================= */
 
+i-tabpane {
+    /* make it accept width and height by swith from :inline" to "inline-block"*/
+    display: inline-block;
+    *display: block;
+    *zoom: 1;
+}
+
 i-tabpane >ul {
     margin:0;
     padding:0;
     list-style:none;
-    border-bottom: 3px solid #2647a0;
+    height: 2.2em;
+    overflow: hidden;
 }
 
 i-tabpane >ul li {
@@ -42,16 +50,28 @@ i-tabpane >ul li {
     *display: inline; /* IE */
     *zoom: 1; /* IE */
     margin-right: 0.25em;
+    box-shadow: 0 0 0 1px rgba(0,0,0, 0.15) inset;
 }
 
 i-tabpane >ul li.pure-button {
     display: inline-block;
     *display: inline; /* IE */
     *zoom: 1; /* IE */
-    margin-right: 0.25em;
+    margin-right: 0.2em;
     border-radius: 2px 2px 0 0;
+    border-bottom: none;
 }
 
 i-tabpane >div {
+    height: 100%;
+    margin-top: -2.2em;
+    padding-top: 2.2em;
+}
+
+i-tabpane >div >div.container {
     border: 1px solid #2647a0;
+    border-top: 5px solid #2647a0;
+    padding: 0.25em 0.5em;
+    height: 100%;
+    width: 100%;
 }
