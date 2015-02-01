@@ -52,6 +52,12 @@ module.exports = function (window) {
             model.pane = liNodes.indexOf(node) + 1;
         }, 'i-tabpane > ul li');
 
+        Event.before(['click', 'tab'], function(e) {
+            // don't double render (especialliy not BEFORE the tab changes)
+            // rendering will be done because of the focus-event
+            e.preventRender();
+        }, 'i-tabpane > ul li');
+
         Itag = DOCUMENT.createItag(itagName, {
             /*
              * Internal hash containing all DOM-events that are listened for (at `document`).
@@ -142,6 +148,7 @@ module.exports = function (window) {
                     content = '',
                     i, tabItem, index;
 
+console.info('i-tabpane begins sync for pane '+pane);
                 index = pane - 1;
                 for (i=0; i<len; i++) {
                     tabItem = tabs[i];
@@ -157,8 +164,9 @@ module.exports = function (window) {
                 navContainer.setHTML(content);
 
                 // set the content:
-console.info('SETTING '+panes[index]);
+console.info('i-tabpane will set new panecontent: '+panes[index]+(new Date()).getTime());
                 container.setHTML(panes[index]);
+console.info('i-tabpane READY set new panecontent: '+(new Date()).getTime());
             }
         });
 
