@@ -17,7 +17,7 @@ module.exports = function (window) {
         Event, Itag;
 
     if (!window.ITAGS[itagName]) {
-        Event = require('event-dom')(window);
+        Event = require('event-mobile')(window);
         require('focusmanager')(window);
         require('i-item')(window);
         require('i-head')(window);
@@ -52,7 +52,7 @@ module.exports = function (window) {
             model.pane = liNodes.indexOf(node) + 1;
         }, 'i-tabpane > ul li');
 
-        Event.before(['click', 'tab'], function(e) {
+        Event.before('tap', function(e) {
             // don't double render (especialliy not BEFORE the tab changes)
             // rendering will be done because of the focus-event
             e.preventRender();
@@ -148,7 +148,6 @@ module.exports = function (window) {
                     content = '',
                     i, tabItem, index;
 
-console.info('i-tabpane begins sync for pane '+pane);
                 index = pane - 1;
                 for (i=0; i<len; i++) {
                     tabItem = tabs[i];
@@ -164,9 +163,7 @@ console.info('i-tabpane begins sync for pane '+pane);
                 navContainer.setHTML(content);
 
                 // set the content:
-console.info('i-tabpane will set new panecontent: '+panes[index]+(new Date()).getTime());
                 container.setHTML(panes[index]);
-console.info('i-tabpane READY set new panecontent: '+(new Date()).getTime());
             }
         });
 
