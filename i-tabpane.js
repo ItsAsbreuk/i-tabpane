@@ -23,26 +23,25 @@ module.exports = function (window) {
         require('i-head')(window);
 
         Event.before(itagName+':manualfocus', function(e) {
+console.warn('before i-tabpane manualfocus, was it rendered: '+e.target.isRendered());
             // the i-select itself is unfocussable, but its button is
             // we need to patch `manualfocus`,
             // which is emitted on node.focus()
             // a focus by userinteraction will always appear on the button itself
             // so we don't bother that
-            var element = e.target;
+            var element = e.target,
+                ul = element.getElement('>ul');
             e.preventDefault();
-            // cautious:  all child-elements that have `manualfocus` event are
-            // subscribed as well: we NEED to inspect e.target and only continue
-            // if e.target===i-select
-            e.preventDefault();
-            element.itagReady().then(
-                function() {
-                    var ul = element.getElement('>ul');
-                    ul && ul.focus();
-                }
-            );
+if (ul) {
+    console.warn('gonig to focus UL:');
+    console.warn(ul);
+}
+
+            ul && ul.focus();
         });
 
         Event.after('focus', function(e) {
+console.warn('focussing LI');
             var node = e.target,
                 ul = node.getParent(),
                 element = ul.getParent(),
@@ -104,8 +103,8 @@ module.exports = function (window) {
                     panes[panes.length] = node.getHTML();
                 });
 
-                element.model.panes = panes;
-                element.model.tabs = tabs;
+                element.setValueOnce('panes', panes);
+                element.setValueOnce('tabs', tabs);
 
                 // store its current value, so that valueChange-event can fire:
                 element.setData('i-select-pane', pane);
@@ -129,6 +128,7 @@ module.exports = function (window) {
             * @since 0.0.1
             */
             sync: function() {
+console.warn('syncing i-tabpane');
                 // inside sync, YOU CANNOT change attributes which are part of `attrs` !!!
                 // those actions will be ignored.
 

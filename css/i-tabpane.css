@@ -74,4 +74,5 @@ i-tabpane >div >div.container {
     padding: 0.25em 0.5em;
     height: 100%;
     width: 100%;
+    overflow: scroll;
 }
