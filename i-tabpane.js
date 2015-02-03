@@ -7,6 +7,10 @@ require('js-ext/lib/string.js');
 require('css');
 require('./css/i-tabpane.css');
 
+var utils = require('utils'),
+    asyncSilent = utils.asyncSilent,
+    laterSilent = utils.laterSilent;
+
 module.exports = function (window) {
 
     "use strict";
@@ -23,26 +27,24 @@ module.exports = function (window) {
         require('i-head')(window);
 
         Event.before(itagName+':manualfocus', function(e) {
-console.warn('before i-tabpane manualfocus, was it rendered: '+e.target.isRendered());
             // the i-select itself is unfocussable, but its button is
             // we need to patch `manualfocus`,
             // which is emitted on node.focus()
             // a focus by userinteraction will always appear on the button itself
             // so we don't bother that
-            var element = e.target,
-                ul = element.getElement('>ul');
+            var element = e.target;
             e.preventDefault();
-if (ul) {
-    console.warn('gonig to focus UL:');
-    console.warn(ul);
-}
-
-            ul && ul.focus();
+            element.itagReady().then(
+                function() {
+                    var ul = element.getElement('>ul');
+                    ul && ul.focus();
+                }
+            );
         });
 
         Event.after('focus', function(e) {
-console.warn('focussing LI');
             var node = e.target,
+                type = e.type,
                 ul = node.getParent(),
                 element = ul.getParent(),
                 model = element.model,
@@ -51,8 +53,8 @@ console.warn('focussing LI');
             model.pane = liNodes.indexOf(node) + 1;
         }, 'i-tabpane > ul li');
 
-        Event.before('tap', function(e) {
-            // don't double render (especialliy not BEFORE the tab changes)
+        Event.before(['tap', 'press'], function(e) {
+            // don't double render (especially not BEFORE the tab changes)
             // rendering will be done because of the focus-event
             e.preventRender();
         }, 'i-tabpane > ul li');
@@ -113,6 +115,7 @@ console.warn('focussing LI');
                 content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
                 // set the content:
                 element.setHTML(content);
+                element.setContentVisibility(true);
             },
 
            /**
@@ -152,17 +155,18 @@ console.warn('syncing i-tabpane');
                 for (i=0; i<len; i++) {
                     tabItem = tabs[i];
                     if (i===index) {
-                        content += '<li class="pure-button pure-button-active" fm-defaultitem="true">'+tabItem+'</li>';
+                        content += '<li class="pure-button pure-button-active" fm-defaultitem="true"><div>'+tabItem+'</div></li>';
                     }
                     else {
-                        content += '<li class="pure-button">'+tabItem+'</li>';
+                        content += '<li class="pure-button"><div>'+tabItem+'</div></li>';
                     }
                 }
 
                 // set the tabs:
-                navContainer.setHTML(content);
+                navContainer.setHTML(content, true);
 
                 // set the content:
+                // CANNOT be done silently: there can be itags within the pane
                 container.setHTML(panes[index]);
             }
         });
