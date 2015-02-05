@@ -10,10 +10,10 @@ require('./css/i-tabpane.css');
 module.exports = function (window) {
 
     "use strict";
-    require('itags.core')(window);
 
     var itagName = 'i-tabpane',
         DOCUMENT = window.document,
+        itagCore = require('itags.core')(window),
         Event, Itag;
 
     if (!window.ITAGS[itagName]) {
@@ -65,7 +65,8 @@ module.exports = function (window) {
              * @since 0.0.1
             */
             attrs: {
-                pane: 'number'
+                pane: 'number',
+                prop: 'string'
             },
 
            /**
@@ -100,8 +101,8 @@ module.exports = function (window) {
                     panes[panes.length] = node.getHTML();
                 });
 
-                element.setValueOnce('panes', panes);
-                element.setValueOnce('tabs', tabs);
+                element.defineWhenUndefined('panes', panes)
+                       .defineWhenUndefined('tabs', tabs);
 
                 // store its current value, so that valueChange-event can fire:
                 element.setData('i-select-pane', pane);
@@ -110,7 +111,6 @@ module.exports = function (window) {
                 content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
                 // set the content:
                 element.setHTML(content);
-                element.setContentVisibility(true);
             },
 
            /**
@@ -145,7 +145,7 @@ console.warn('syncing i-tabpane');
                     container = element.getElement('div.container'),
                     content = '',
                     i, tabItem, index;
-
+console.info(element.getOuterHTML());
                 index = pane - 1;
                 for (i=0; i<len; i++) {
                     tabItem = tabs[i];
@@ -166,8 +166,10 @@ console.warn('syncing i-tabpane');
             }
         });
 
-        Itag.setItagDirectEventResponse('focus');
+        itagCore.setDirectEventResponse(Itag, 'focus');
+        itagCore.setContentVisibility(Itag, true);
 
+        window.ITAGS[itagName] = Itag;
     }
 
     return window.ITAGS[itagName];
