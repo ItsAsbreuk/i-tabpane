@@ -66,7 +66,7 @@ module.exports = function (window) {
             */
             attrs: {
                 pane: 'number',
-                prop: 'string'
+                'i-prop': 'string'
             },
 
            /**
@@ -83,7 +83,8 @@ module.exports = function (window) {
             */
             init: function() {
                 var element = this,
-                    itemNodes = element.getAll('>i-item'),
+                    designNode = element.getDesignNode(),
+                    itemNodes = designNode.getAll('>i-item'),
                     model = element.model,
                     pane = model.pane,
                     panes = [],
