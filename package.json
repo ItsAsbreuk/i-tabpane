@@ -36,9 +36,7 @@
         "event-mobile": "itsa/event-mobile",
         "js-ext": "itsa/js-ext",
         "css": "itsa/css",
-        "itags.core": "itags/core",
-        "i-head": "itags/i-head",
-        "i-item": "itags/i-item"
+        "itags.core": "itags/core"
     },
     "devDependencies": {
         "chai": "^1.9.1",

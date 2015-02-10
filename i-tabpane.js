@@ -19,8 +19,6 @@ module.exports = function (window) {
     if (!window.ITAGS[itagName]) {
         Event = require('event-mobile')(window);
         require('focusmanager')(window);
-        require('i-item')(window);
-        require('i-head')(window);
 
         Event.before(itagName+':manualfocus', function(e) {
             // the i-select itself is unfocussable, but its button is
@@ -84,22 +82,21 @@ module.exports = function (window) {
             init: function() {
                 var element = this,
                     designNode = element.getDesignNode(),
-                    itemNodes = designNode.getAll('>i-item'),
+                    itemNodes = designNode.getAll('>section'),
                     model = element.model,
                     pane = model.pane,
                     panes = [],
                     tabs = [],
                     content;
                 itemNodes.forEach(function(node, i) {
-                    var header = node.getElement('i-head');
+                    var header = node.getElement('span[is="tab"]');
                     if (header) {
                         tabs[i] = header.getHTML();
-                        header.remove(true);
                     }
                     else {
                         tabs[i] = '&nbsp;';
                     }
-                    panes[panes.length] = node.getHTML();
+                    panes[panes.length] = node.getHTML(header);
                 });
 
                 element.defineWhenUndefined('panes', panes)
