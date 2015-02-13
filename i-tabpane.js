@@ -2,9 +2,7 @@
 * attributes:
 * value, expanded, primary-button
 */
-require('polyfill/polyfill-base.js');
-require('js-ext/lib/string.js');
-require('css');
+
 require('./css/i-tabpane.css');
 
 module.exports = function (window) {
@@ -12,13 +10,13 @@ module.exports = function (window) {
     "use strict";
 
     var itagName = 'i-tabpane',
-        DOCUMENT = window.document,
         itagCore = require('itags.core')(window),
-        Event, Itag;
+        DOCUMENT = window.document,
+        ITSA = window.ITSA,
+        Event = ITSA.Event,
+        Itag;
 
     if (!window.ITAGS[itagName]) {
-        Event = require('event-mobile')(window);
-        require('focusmanager')(window);
 
         Event.before(itagName+':manualfocus', function(e) {
             // the i-select itself is unfocussable, but its button is
