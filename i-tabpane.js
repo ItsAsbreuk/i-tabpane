@@ -62,6 +62,7 @@ module.exports = function (window) {
             */
             attrs: {
                 pane: 'number',
+                'reset-value': 'string',
                 'i-prop': 'string'
             },
 
@@ -98,7 +99,9 @@ module.exports = function (window) {
                 });
 
                 element.defineWhenUndefined('panes', panes)
-                       .defineWhenUndefined('tabs', tabs);
+                       .defineWhenUndefined('tabs', tabs)
+                        // set the reset-value to the inital-value in case `reset-value` was not present
+                       .defineWhenUndefined('reset-value', pane);
 
                 // store its current value, so that valueChange-event can fire:
                 element.setData('i-select-pane', pane);
@@ -107,6 +110,18 @@ module.exports = function (window) {
                 content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
                 // set the content:
                 element.setHTML(content);
+            },
+
+            currentToReset: function() {
+                var model = this.model;
+                model['reset-value'] = model.pane;
+            },
+
+            reset: function() {
+                var model = this.model;
+                model.pane = model['reset-value'];
+                // no need to call `refreshItags` --> the reset()-method doesn't come out of the blue
+                // so, the eventsystem will refresh it afterwards
             },
 
            /**
@@ -122,7 +137,6 @@ module.exports = function (window) {
             * @since 0.0.1
             */
             sync: function() {
-console.warn('syncing i-tabpane');
                 // inside sync, YOU CANNOT change attributes which are part of `attrs` !!!
                 // those actions will be ignored.
 
@@ -141,7 +155,6 @@ console.warn('syncing i-tabpane');
                     container = element.getElement('div.container'),
                     content = '',
                     i, tabItem, index;
-console.info(element.getOuterHTML());
                 index = pane - 1;
                 for (i=0; i<len; i++) {
                     tabItem = tabs[i];
