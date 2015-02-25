@@ -72,9 +72,7 @@ module.exports = function (window) {
             *
             * Syncs the new vnode's childNodes with the dom.
             *
-            * @method _setChildNodes
-            * @param newVChildNodes {Array} array with vnodes which represent the new childNodes
-            * @private
+            * @method init
             * @chainable
             * @since 0.0.1
             */
@@ -85,8 +83,7 @@ module.exports = function (window) {
                     model = element.model,
                     pane = model.pane,
                     panes = [],
-                    tabs = [],
-                    content;
+                    tabs = [];
                 itemNodes.forEach(function(node, i) {
                     var header = node.getElement('span[is="tab"]');
                     if (header) {
@@ -105,9 +102,22 @@ module.exports = function (window) {
 
                 // store its current value, so that valueChange-event can fire:
                 element.setData('i-select-pane', pane);
+            },
 
-                // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
-                content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
+           /**
+            * Redefines the childNodes of both the vnode as well as its related dom-node. The new
+            * definition replaces any previous nodes. (without touching unmodified nodes).
+            *
+            * Syncs the new vnode's childNodes with the dom.
+            *
+            * @method render
+            * @chainable
+            * @since 0.0.1
+            */
+            render: function() {
+                var element = this,
+                    // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
+                    content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
                 // set the content:
                 element.setHTML(content);
             },
