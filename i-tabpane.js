@@ -14,6 +14,7 @@ module.exports = function (window) {
         DOCUMENT = window.document,
         ITSA = window.ITSA,
         Event = ITSA.Event,
+        SUPPRESS_DELAY = 150, // to prevent flickr due to focusmanager when clicked on li-elements
         Itag;
 
     if (!window.ITAGS[itagName]) {
@@ -39,15 +40,25 @@ module.exports = function (window) {
                 ul = node.getParent(),
                 element = ul.getParent(),
                 model = element.model,
-                liNodes;
+                liNodes, newPane;
             liNodes = ul.getAll('li');
-            model.pane = liNodes.indexOf(node) + 1;
-        }, 'i-tabpane > ul li');
-
-        Event.before(['tap', 'press'], function(e) {
-            // don't double render (especially not BEFORE the tab changes)
-            // rendering will be done because of the focus-event
-            e.preventRender();
+            newPane = liNodes.indexOf(node) + 1;
+            if (!element.hasData('_suppressTabSwitch')) {
+                model.pane = newPane;
+                element.setData('_suppressTabSwitch', true);
+                ITSA.later(function() {
+                    element.removeData('_suppressTabSwitch');
+/*jshint boss:true */
+                    if (newPane=element.getData('_newPane')) {
+/*jshint boss:false */
+                        model.pane = newPane;
+                        element.removeData('_newPane');
+                    }
+                }, SUPPRESS_DELAY);
+            }
+            else {
+                element.setData('_newPane', newPane);
+            }
         }, 'i-tabpane > ul li');
 
         Itag = DOCUMENT.createItag(itagName, {
@@ -92,7 +103,7 @@ module.exports = function (window) {
                     else {
                         tabs[i] = '&nbsp;';
                     }
-                    panes[panes.length] = node.getHTML(header);
+                    panes[panes.length] = node.getHTML(header, true);
                 });
 
                 element.defineWhenUndefined('panes', panes)
@@ -117,7 +128,7 @@ module.exports = function (window) {
             render: function() {
                 var element = this,
                     // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
-                    content = '<ul fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
+                    content = '<ul plugin-fm="true" fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
                 // set the content:
                 element.setHTML(content);
             },
