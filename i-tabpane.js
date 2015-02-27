@@ -89,7 +89,7 @@ module.exports = function (window) {
             */
             init: function() {
                 var element = this,
-                    designNode = element.getDesignNode(),
+                    designNode = element.getItagContainer(),
                     itemNodes = designNode.getAll('>section'),
                     model = element.model,
                     pane = model.pane,
