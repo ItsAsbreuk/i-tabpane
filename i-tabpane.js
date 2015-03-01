@@ -127,9 +127,11 @@ module.exports = function (window) {
             */
             render: function() {
                 var element = this,
-                    // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
-                    content = '<ul plugin-fm="true" fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul><div><div class="container"></div></div>';
-                // set the content:
+                    content;
+                // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
+                content = '<ul plugin-fm="true" fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul>';
+                content += '<div><div class="container"></div></div>';
+                // set the other content:
                 element.setHTML(content);
             },
 
