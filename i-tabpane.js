@@ -143,8 +143,6 @@ module.exports = function (window) {
             reset: function() {
                 var model = this.model;
                 model.pane = model['reset-value'];
-                // no need to call `refreshItags` --> the reset()-method doesn't come out of the blue
-                // so, the eventsystem will refresh it afterwards
             },
 
            /**
@@ -198,7 +196,6 @@ module.exports = function (window) {
             }
         });
 
-        itagCore.setDirectEventResponse(Itag, 'focus');
         itagCore.setContentVisibility(Itag, true);
 
         window.ITAGS[itagName] = Itag;
