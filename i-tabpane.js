@@ -61,7 +61,7 @@ module.exports = function (window) {
             }
         }, 'i-tabpane > ul li');
 
-        Itag = DOCUMENT.createItag(itagName, {
+        Itag = DOCUMENT.defineItag(itagName, {
             /*
              * Internal hash containing all DOM-events that are listened for (at `document`).
              *
