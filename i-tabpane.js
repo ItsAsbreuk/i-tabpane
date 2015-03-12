@@ -129,7 +129,7 @@ module.exports = function (window) {
                 var element = this,
                     content;
                 // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
-                content = '<ul plugin-fm="true" fm-manage="li" fm-keyup="37" fm-keydown="39" fm-noloop="true"></ul>';
+                content = '<ul plugin-fm="true" fm-manage="li" fm-keyup="37" fm-keydown="39" fm-keyenter="40" fm-keyleave="27" fm-noloop="true"></ul>';
                 content += '<div><div class="container"></div></div>';
                 // set the other content:
                 element.setHTML(content);
