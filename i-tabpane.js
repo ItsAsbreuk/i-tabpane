@@ -14,7 +14,18 @@ module.exports = function (window) {
         DOCUMENT = window.document,
         ITSA = window.ITSA,
         Event = ITSA.Event,
+        KEY_UP = 37, // don't use hot keys without altering the code: just numbers
+        KEY_DOWN = 39, // don't use hot keys without altering the code: just numbers
+        KEY_ENTER = 40, // don't use hot keys without altering the code: just numbers
+        KEY_LEAVE = 27, // don't use hot keys without altering the code: just numbers
         SUPPRESS_DELAY = 150, // to prevent flickr due to focusmanager when clicked on li-elements
+        // SPECIAL_KEYS needs to be a native Object --> we need .some()
+        SPECIAL_KEYS = {
+            shift: 'shiftKey',
+            ctrl: 'ctrlKey',
+            cmd: 'metaKey',
+            alt: 'altKey'
+        },
         Itag;
 
     if (!window.ITAGS[itagName]) {
@@ -37,7 +48,7 @@ module.exports = function (window) {
 
         Event.after('focus', function(e) {
             var node = e.target,
-                ul = node.getParent(),
+                ul = node.inside('i-tabpane >ul'),
                 element = ul.getParent(),
                 model = element.model,
                 liNodes, newPane;
@@ -60,6 +71,69 @@ module.exports = function (window) {
                 element.setData('_newPane', newPane);
             }
         }, 'i-tabpane > ul li');
+
+        Event.after('keydown', function(e) {
+            var keyCode = e.keyCode,
+                element, childFocusManagerNode;
+            if ((keyCode===KEY_ENTER) && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                element = e.target.inside('i-tabpane');
+                childFocusManagerNode = element.getElement('>div >div.container [plugin-fm="true"]');
+                childFocusManagerNode && childFocusManagerNode.focus();
+            }
+        }, 'i-tabpane > ul li');
+
+        Event.before('keydown', function(e) {
+            var keyCode = e.keyCode,
+                acceptedKey, hotKey;
+            acceptedKey = (keyCode===KEY_UP) || (keyCode===KEY_DOWN) || (keyCode===KEY_LEAVE) || (keyCode===KEY_ENTER);
+            hotKey = e.shiftKey || e.ctrlKey || e.metaKey || e.altKey;
+            if (!acceptedKey || hotKey) {
+                e.preventDefault();
+            }
+        }, 'i-tabpane > ul li');
+
+        Event.after('keydown', function(e) {
+            var keyCode = e.keyCode,
+                fmNode = e.sourceTarget.inside('[plugin-fm="true"]'),
+                parentFmNode, tabPaneNode, mightFocus;
+
+            // check if the next upper focusmanager lies higher than i-tabpane:
+            if (fmNode) {
+                parentFmNode = fmNode.inside('[plugin-fm="true"]');
+                tabPaneNode = e.target.inside('i-tabpane');
+                // if outside, than we are allowed to focus on the tabs:
+                mightFocus = !parentFmNode || !parentFmNode.inside(tabPaneNode);
+            }
+            if (mightFocus) {
+                // check for keyleave:
+                fmNode.getPlugin('fm').then(
+                    function(plugin) {
+                        var actionkey = plugin.model.keyleave,
+                            specialKeysMatch = false,
+                            keys, i, len, lastIndex, specialKey;
+                        if (actionkey) {
+                            keys = actionkey.split('+');
+                            len = keys.length;
+                            lastIndex = len - 1;
+                            // double == --> keyCode is number, keys is a string
+                            if (keyCode==keys[lastIndex]) {
+                                // posible keyleave --> check if special characters match:
+                                specialKeysMatch = true;
+                                SPECIAL_KEYS.some(function(value) {
+                                    specialKeysMatch = !e[value];
+                                    return !specialKeysMatch;
+                                });
+                                for (i=lastIndex-1; (i>=0) && !specialKeysMatch; i--) {
+                                    specialKey = keys[i].toLowerCase();
+                                    specialKeysMatch = e[SPECIAL_KEYS[specialKey]];
+                                }
+                            }
+                            specialKeysMatch && ITSA.async(tabPaneNode.focus.bind(tabPaneNode));
+                        }
+                    }
+                );
+            }
+        }, 'i-tabpane > div');
 
         Itag = DOCUMENT.defineItag(itagName, {
             /*
@@ -129,7 +203,7 @@ module.exports = function (window) {
                 var element = this,
                     content;
                 // note: the container wil excist of a div inside a div --> to make the css work (100% height within i-tabpane)
-                content = '<ul plugin-fm="true" fm-manage="li" fm-keyup="37" fm-keydown="39" fm-keyenter="40" fm-keyleave="27" fm-noloop="true"></ul>';
+                content = '<ul plugin-fm="true" fm-manage="li" fm-keyup="'+KEY_UP+'" fm-keydown="'+KEY_DOWN+'" fm-keyenter="'+KEY_ENTER+'" fm-keyleave="'+KEY_LEAVE+'" fm-noloop="true"></ul>';
                 content += '<div><div class="container"></div></div>';
                 // set the other content:
                 element.setHTML(content);
@@ -173,7 +247,7 @@ module.exports = function (window) {
                     tabs = model.tabs,
                     len = tabs.length,
                     navContainer = element.getElement('>ul'),
-                    container = element.getElement('div.container'),
+                    container = element.getElement('>div >div.container'),
                     content = '',
                     i, tabItem, index;
                 index = pane - 1;
