@@ -209,15 +209,7 @@ module.exports = function (window) {
                 element.setHTML(content);
             },
 
-            currentToReset: function() {
-                var model = this.model;
-                model['reset-value'] = model.pane;
-            },
-
-            reset: function() {
-                var model = this.model;
-                model.pane = model['reset-value'];
-            },
+            valueProperty: 'pane',
 
            /**
             * Redefines the childNodes of both the vnode as well as its related dom-node. The new
